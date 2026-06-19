@@ -33,7 +33,8 @@ All return JSON. The app sits at the project root and reads `docker-compose.yaml
 - Uses `docker compose` (v2 syntax with space), not `docker-compose` (hyphen).
 - The `docker-compose.yaml` references `flask/` and `nginx/` directories that may not exist — compose will fail trying to build/mount them. The control app only reads the YAML to list services; it does not depend on those directories.
 - Port 9500 — hardcoded in `app.py`, referenced in scripts and README.
-- No test / CI / linter infrastructure. 
+- No test / CI / linter infrastructure.
+- **README images** — do not remove or modify `<img>` tags in README.md. The user maintains screenshots there.
 
 ## Commands
 
