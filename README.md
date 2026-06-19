@@ -32,3 +32,5 @@ python dockercontrolapp/app.py
 > On some systems you may need `pip3` instead of `pip` and `python3` instead of `python` — the helper scripts handle this automatically.
 
 Open [http://localhost:9500](http://localhost:9500) in your browser.
+
+<img width="1176" height="750" alt="image" src="https://github.com/user-attachments/assets/f2e783c2-9d70-437d-8c61-0828e77149d7" />
