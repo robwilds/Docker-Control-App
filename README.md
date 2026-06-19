@@ -1,6 +1,13 @@
 ## Docker Control App
 
-Web UI to manage Docker Compose services — lists services, shows status, start/stop/restart, and live log tailing.  This can be used with any docker-compose.yaml file as long as it's in the root of the project!
+Web UI to manage Docker Compose services — lists services, shows live status (auto-refreshes every 5 seconds), start/stop/restart, and per-container log tailing. Works with any `docker-compose.yaml` at the project root.
+
+### Features
+
+- Service list with live **status badges** (running/stopped/unknown) — polls every 5 seconds
+- **Start All**, **Stop All** (persists containers via `docker compose stop`), **Restart All**
+- **Per-service Start / Stop** buttons
+- **Per-service log panel** — slides open, tails last 50 lines, auto-refreshes every 5 seconds
 
 ### Prerequisites
 
@@ -10,7 +17,7 @@ Web UI to manage Docker Compose services — lists services, shows status, start
 
 ### Quick start
 
-**Option A — helper scripts (auto-installs dependencies):**
+**Option A — helper scripts (auto-installs dependencies, opens browser):**
 
 - **macOS / Linux:** `./start.sh`
 - **Windows:** `start.bat`
@@ -24,32 +31,4 @@ python dockercontrolapp/app.py
 
 > On some systems you may need `pip3` instead of `pip` and `python3` instead of `python` — the helper scripts handle this automatically.
 
-The helper scripts automatically open [http://localhost:9500](http://localhost:9500) in your browser once the server is ready.
-<img width="1151" height="719" alt="image" src="https://github.com/user-attachments/assets/f6c8e113-cc58-40e0-8118-822425e34903" />
-
----
-
-## Compose sample
-
-### Angular service
-
-Project structure:
-
-```
-.
-├── angular
-│   ├── Dockerfile
-│   ├── ...
-│   ├── ...
-│   ....
-└── docker-compose.yaml
-```
-
-The compose file defines an application with two services `angular` and dozzle. The image for the angular service is built with the Dockerfile inside the `angular` directory (build parameter).
-
-When deploying the application, docker compose maps the container port 4200 to the same port on the host as specified in the file.
-Make sure port 4200 is not being used by another container, otherwise the port should be changed.
-
-```
-
-```
+Open [http://localhost:9500](http://localhost:9500) in your browser.
