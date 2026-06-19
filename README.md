@@ -1,6 +1,6 @@
 ## Docker Control App
 
-Web UI to manage Docker Compose services — lists services, shows status, start/stop/restart, and live log tailing.
+Web UI to manage Docker Compose services — lists services, shows status, start/stop/restart, and live log tailing.  This can be used with any docker-compose.yaml file as long as it's in the root of the project!
 
 ### Prerequisites
 
