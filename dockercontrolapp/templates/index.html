@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Docker Control App</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #f4f5fd;
+      color: #323234;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #191f5e;
+      color: #fff;
+      padding: 1.25rem 2rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,.12);
+    }
+
+    header .container {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      flex-shrink: 0;
+    }
+
+    .logo-icon svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-text .hyland {
+      font-size: .7rem;
+      font-weight: 500;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      opacity: .7;
+      line-height: 1;
+      font-family: Figtree, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    .brand-text .app-name {
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -.02em;
+      line-height: 1.2;
+      font-family: Figtree, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    main.container {
+      padding: 2rem 1.5rem;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: .75rem;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .65rem 1.5rem;
+      font-size: .875rem;
+      font-weight: 600;
+      border: 2px solid transparent;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: opacity .2s, transform .1s, box-shadow .2s;
+      color: #fff;
+    }
+
+    .btn:active { transform: scale(.97); }
+
+    .btn-primary {
+      background: #191f5e;
+      border-color: #191f5e;
+    }
+    .btn-primary:hover { opacity: .85; box-shadow: 0 2px 8px rgba(25,31,94,.3); }
+
+    .btn-danger {
+      background: #d65a52;
+      border-color: #d65a52;
+    }
+    .btn-danger:hover { opacity: .85; box-shadow: 0 2px 8px rgba(214,90,82,.3); }
+
+    .btn-warning {
+      background: #ebc95e;
+      border-color: #ebc95e;
+      color: #191f5e;
+    }
+    .btn-warning:hover { opacity: .85; box-shadow: 0 2px 8px rgba(235,201,94,.3); }
+
+    .btn-log {
+      background: transparent;
+      border-color: #14d4b7;
+      color: #14d4b7;
+    }
+    .btn-log:hover { background: #14d4b7; color: #191f5e; box-shadow: 0 2px 8px rgba(20,212,183,.3); }
+
+    .btn-log.active {
+      background: #14d4b7;
+      color: #191f5e;
+    }
+
+    .btn:disabled {
+      opacity: .4;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none !important;
+    }
+
+    .btn-sm {
+      padding: .4rem 1rem;
+      font-size: .78rem;
+    }
+
+    .toast {
+      position: fixed;
+      top: 1.5rem;
+      right: 1.5rem;
+      z-index: 999;
+      padding: .85rem 1.5rem;
+      border-radius: 8px;
+      color: #fff;
+      font-weight: 500;
+      font-size: .875rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,.15);
+      transform: translateY(-120%);
+      opacity: 0;
+      transition: transform .35s ease, opacity .35s ease;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast-success { background: #54a654; }
+    .toast-error   { background: #d65a52; }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .service-wrapper {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06), 0 2px 12px rgba(0,0,0,.04);
+      transition: box-shadow .2s;
+    }
+
+    .card:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,.08), 0 2px 12px rgba(0,0,0,.04);
+    }
+
+    .card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .card-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      font-family: Figtree, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      padding: .2rem .7rem;
+      border-radius: 20px;
+      font-size: .75rem;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+
+    .status-badge::before {
+      content: '';
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .status-running { background: #e0f0e0; color: #2d6d2d; }
+    .status-running::before { background: #54a654; }
+
+    .status-stopped { background: #f6dedc; color: #8a3a35; }
+    .status-stopped::before { background: #d65a52; }
+
+    .status-unknown { background: #fcf3d0; color: #8a7530; }
+    .status-unknown::before { background: #ebc95e; }
+
+    .card-actions {
+      display: flex;
+      gap: .5rem;
+      flex-wrap: wrap;
+    }
+
+    .log-panel {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .35s ease;
+      background: #1e1e2e;
+      border-radius: 0 0 10px 10px;
+    }
+
+    .log-panel.open {
+      max-height: 500px;
+    }
+
+    .log-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: .5rem 1rem;
+      background: #2d2d44;
+      color: #aaa;
+      font-size: .75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .btn-log-close {
+      background: transparent;
+      border: 1px solid #555;
+      color: #aaa;
+      padding: .15rem .6rem;
+      font-size: .7rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .btn-log-close:hover { background: #444; color: #fff; }
+
+    .log-content {
+      padding: .75rem 1rem;
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, monospace;
+      font-size: .78rem;
+      line-height: 1.5;
+      color: #cdd6f4;
+      white-space: pre-wrap;
+      word-break: break-all;
+      max-height: 380px;
+      overflow-y: auto;
+    }
+
+    .log-content::-webkit-scrollbar {
+      width: 6px;
+    }
+    .log-content::-webkit-scrollbar-track {
+      background: #2d2d44;
+    }
+    .log-content::-webkit-scrollbar-thumb {
+      background: #555;
+      border-radius: 3px;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 4rem 1rem;
+      color: #888;
+    }
+
+    .empty h2 {
+      font-weight: 400;
+      font-size: 1.25rem;
+      font-family: Figtree, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    @media (max-width: 640px) {
+      header { padding: 1rem; }
+      header .container { gap: .75rem; }
+      .brand-text .app-name { font-size: 1.1rem; }
+      .logo-icon { width: 28px; height: 28px; }
+      main.container { padding: 1.25rem; }
+      .services-grid { grid-template-columns: 1fr; }
+      .toolbar { flex-direction: column; }
+      .toolbar .btn { width: 100%; justify-content: center; }
+      .card-actions .btn { flex: 1; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="container">
+      <div class="logo-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 214 214" fill="none">
+          <rect width="214" height="214" fill="#191f5e"/>
+          <path fill="#fff" d="M41.71 105.5h32.67L45.8 155H13.13ZM103.09 56h32.67l-28.58 49.5H74.51zM107.05 105.5h32.67L111.14 155H78.47zM168.43 56h32.67l-28.58 49.5h-32.67z"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <span class="hyland">Hyland</span>
+        <span class="app-name">Docker Control App</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="toolbar">
+      <button class="btn btn-primary" onclick="action('start-all')">Start All</button>
+      <button class="btn btn-danger" onclick="action('stop-all')">Stop All</button>
+      <button class="btn btn-warning" onclick="action('restart-all')">Restart All</button>
+    </div>
+    <div class="services-grid" id="services-grid"></div>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const logIntervals = {};
+
+    async function fetchServices() {
+      try {
+        const res = await fetch('/api/services');
+        const services = await res.json();
+        renderServices(services);
+      } catch {
+        showToast('Failed to load services', 'error');
+      }
+    }
+
+    function renderServices(services) {
+      const grid = document.getElementById('services-grid');
+      if (!services.length) {
+        grid.innerHTML = '<div class="empty"><h2>No services found in docker-compose.yaml</h2></div>';
+        return;
+      }
+      grid.innerHTML = services.map(svc => {
+        const status = ['running','stopped'].includes(svc.status) ? svc.status : 'unknown';
+        return `
+          <div class="service-wrapper">
+            <div class="card" data-service="${svc.name}">
+              <div class="card-top">
+                <span class="card-name">${svc.name}</span>
+                <span class="status-badge status-${status}" id="status-${svc.name}">${svc.status}</span>
+              </div>
+              <div class="card-actions">
+                <button class="btn btn-primary btn-sm" onclick="action('start','${svc.name}')">Start</button>
+                <button class="btn btn-danger btn-sm" onclick="action('stop','${svc.name}')">Stop</button>
+                <button class="btn btn-sm btn-log ${logIntervals[svc.name] ? 'active' : ''}" onclick="toggleLog('${svc.name}')">Log</button>
+              </div>
+            </div>
+            <div class="log-panel" id="log-${svc.name}">
+              <div class="log-header">
+                <span>Container Logs</span>
+                <button class="btn-log-close" onclick="toggleLog('${svc.name}')">Close</button>
+              </div>
+              <pre class="log-content" id="log-content-${svc.name}">Loading...</pre>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    async function toggleLog(name) {
+      const panel = document.getElementById(`log-${name}`);
+      const isOpen = panel.classList.contains('open');
+
+      if (isOpen) {
+        panel.classList.remove('open');
+        clearInterval(logIntervals[name]);
+        delete logIntervals[name];
+      } else {
+        panel.classList.add('open');
+        await fetchLogs(name);
+        logIntervals[name] = setInterval(() => fetchLogs(name), 5000);
+      }
+      updateLogButtons();
+    }
+
+    async function fetchLogs(name) {
+      const el = document.getElementById(`log-content-${name}`);
+      if (!el) return;
+      try {
+        const res = await fetch(`/api/services/${name}/logs?lines=50`);
+        const data = await res.json();
+        el.textContent = data.logs || '(no logs)';
+        el.scrollTop = el.scrollHeight;
+      } catch {
+        el.textContent = '(failed to fetch logs)';
+      }
+    }
+
+    function updateLogButtons() {
+      document.querySelectorAll('.btn-log').forEach(btn => {
+        btn.classList.toggle('active', !!logIntervals[btn.getAttribute('onclick').match(/'([^']+)'/)[1]]);
+      });
+    }
+
+    async function action(cmd, service) {
+      const btns = document.querySelectorAll('.btn');
+      btns.forEach(b => b.disabled = true);
+
+      const url = service ? `/api/services/${service}/${cmd}` : `/api/${cmd}`;
+
+      try {
+        const res = await fetch(url, { method: 'POST' });
+        const data = await res.json();
+        showToast(data.message || (data.success ? 'Success' : 'Failed'), data.success ? 'success' : 'error');
+      } catch {
+        showToast('Request failed', 'error');
+      }
+
+      btns.forEach(b => b.disabled = false);
+      setTimeout(fetchServices, 1500);
+    }
+
+    function showToast(msg, type) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.className = `toast toast-${type} show`;
+      clearTimeout(el._timer);
+      el._timer = setTimeout(() => el.classList.remove('show'), 3500);
+    }
+
+    fetchServices();
+  </script>
+</body>
+</html>
