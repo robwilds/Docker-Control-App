@@ -75,7 +75,7 @@ def start_all():
 
 @app.route('/api/stop-all', methods=['POST'])
 def stop_all():
-    ok, out, err = run_compose(['down'])
+    ok, out, err = run_compose(['stop'])
     return jsonify({'success': ok, 'message': out if ok else err})
 
 

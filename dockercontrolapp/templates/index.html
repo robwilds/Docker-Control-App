@@ -415,6 +415,23 @@
     }
 
     fetchServices();
+    setInterval(pollStatus, 5000);
+
+    async function pollStatus() {
+      try {
+        const res = await fetch('/api/services');
+        const services = await res.json();
+        services.forEach(svc => {
+          const badge = document.getElementById(`status-${svc.name}`);
+          if (!badge) return;
+          const status = ['running','stopped'].includes(svc.status) ? svc.status : 'unknown';
+          badge.textContent = svc.status;
+          badge.className = `status-badge status-${status}`;
+        });
+      } catch {
+        /* silently ignore poll errors */
+      }
+    }
   </script>
 </body>
 </html>

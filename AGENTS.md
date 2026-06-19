@@ -21,7 +21,7 @@ All return JSON. The app sits at the project root and reads `docker-compose.yaml
 |---|---|---|
 | GET | `/api/services` | List services with status |
 | POST | `/api/start-all` | `docker compose up -d` |
-| POST | `/api/stop-all` | `docker compose down` |
+| POST | `/api/stop-all` | `docker compose stop` |
 | POST | `/api/restart-all` | `docker compose restart` |
 | POST | `/api/services/<name>/start` | Start one service |
 | POST | `/api/services/<name>/stop` | Stop one service |
