@@ -24,7 +24,7 @@ python dockercontrolapp/app.py
 
 > On some systems you may need `pip3` instead of `pip` and `python3` instead of `python` — the helper scripts handle this automatically.
 
-Open [http://localhost:9500](http://localhost:9500) in your browser.
+The helper scripts automatically open [http://localhost:9500](http://localhost:9500) in your browser once the server is ready.
 
 ---
 
