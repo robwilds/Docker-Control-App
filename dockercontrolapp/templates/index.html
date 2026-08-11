@@ -14,64 +14,64 @@
       min-height: 100vh;
     }
 
-    header {
-      background: #191f5e;
-      color: #fff;
-      padding: 1.25rem 2rem;
-      box-shadow: 0 2px 12px rgba(0,0,0,.12);
-    }
+     header {
+       background: #2d1b4e;
+       color: #fff;
+       padding: 1.25rem 2rem;
+       box-shadow: 0 2px 12px rgba(0,0,0,.12);
+      }
 
-    header .container {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
+     header .container {
+       display: flex;
+       align-items: center;
+       gap: 1rem;
+      }
 
-    .brand-text .app-name {
-      font-size: 1.35rem;
-      font-weight: 700;
-      letter-spacing: -.02em;
-      line-height: 1.2;
-      font-family: Figtree, -apple-system, BlinkMacSystemFont, sans-serif;
-    }
+     .brand-text .app-name {
+       font-size: 1.35rem;
+       font-weight: 700;
+       letter-spacing: -.02em;
+       line-height: 1.2;
+       font-family: Figtree, -apple-system, BlinkMacSystemFont, sans-serif;
+      }
 
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-    }
+     .container {
+       max-width: 1100px;
+       margin: 0 auto;
+      }
 
-    main.container {
-      padding: 2rem 1.5rem;
-    }
+     main.container {
+       padding: 2rem 1.5rem;
+      }
 
-    .toolbar {
-      display: flex;
-      gap: .75rem;
-      flex-wrap: wrap;
-      margin-bottom: 2rem;
-    }
+     .toolbar {
+       display: flex;
+       gap: .75rem;
+       flex-wrap: wrap;
+       margin-bottom: 2rem;
+      }
 
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: .5rem;
-      padding: .65rem 1.5rem;
-      font-size: .875rem;
-      font-weight: 600;
-      border: 2px solid transparent;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: opacity .2s, transform .1s, box-shadow .2s;
-      color: #fff;
-    }
+     .btn {
+       display: inline-flex;
+       align-items: center;
+       gap: .5rem;
+       padding: .65rem 1.5rem;
+       font-size: .875rem;
+       font-weight: 600;
+       border: 2px solid transparent;
+       border-radius: 6px;
+       cursor: pointer;
+       transition: opacity .2s, transform .1s, box-shadow .2s;
+       color: #fff;
+      }
 
-    .btn:active { transform: scale(.97); }
+     .btn:active { transform: scale(.97); }
 
-    .btn-primary {
-      background: #191f5e;
-      border-color: #191f5e;
-    }
-    .btn-primary:hover { opacity: .85; box-shadow: 0 2px 8px rgba(25,31,94,.3); }
+     .btn-primary {
+       background: #2d1b4e;
+       border-color: #2d1b4e;
+      }
+     .btn-primary:hover { opacity: .85; box-shadow: 0 2px 8px rgba(45,27,78,.3); }
 
     .btn-danger {
       background: #d65a52;
@@ -82,7 +82,7 @@
     .btn-warning {
       background: #ebc95e;
       border-color: #ebc95e;
-      color: #191f5e;
+      color: #2d1b4e;
     }
     .btn-warning:hover { opacity: .85; box-shadow: 0 2px 8px rgba(235,201,94,.3); }
 
@@ -91,11 +91,11 @@
       border-color: #14d4b7;
       color: #14d4b7;
     }
-    .btn-log:hover { background: #14d4b7; color: #191f5e; box-shadow: 0 2px 8px rgba(20,212,183,.3); }
+    .btn-log:hover { background: #14d4b7; color: #2d1b4e; box-shadow: 0 2px 8px rgba(20,212,183,.3); }
 
     .btn-log.active {
       background: #14d4b7;
-      color: #191f5e;
+      color: #2d1b4e;
     }
 
     .btn:disabled {
@@ -298,28 +298,52 @@
   </header>
 
   <main class="container">
-    <div class="toolbar">
-      <button class="btn btn-primary" onclick="action('start-all')">Start All</button>
-      <button class="btn btn-danger" onclick="action('stop-all')">Stop All</button>
-      <button class="btn btn-warning" onclick="action('restart-all')">Restart All</button>
-    </div>
+      <div class="toolbar">
+        <button class="btn btn-primary" onclick="checkDockerAndStart()">Check Docker / Start If Needed, Then Start All Containers</button>
+        <button class="btn btn-danger" onclick="action('stop-all')">Stop All</button>
+        <button class="btn btn-warning" onclick="action('restart-all')">Restart All</button>
+      </div>
     <div class="services-grid" id="services-grid"></div>
   </main>
 
   <div class="toast" id="toast"></div>
 
-  <script>
-    const logIntervals = {};
+    <script>
+     const logIntervals = {};
 
-    async function fetchServices() {
-      try {
+      async function checkDockerAndStart() {
+        try {
+          // First ensure Docker is running
+          const dockerRes = await fetch('/api/ensure-docker-running', { method: 'POST' });
+          const dockerData = await dockerRes.json();
+          
+          if (!dockerData.success) {
+            showToast(dockerData.message, 'error');
+            return;
+          }
+          
+          if (dockerData.message !== 'Docker is already running') {
+            showToast(dockerData.message, 'success');
+          }
+          
+          // Now start all containers
+          const res = await fetch('/api/start-all', { method: 'POST' });
+          const data = await res.json();
+          showToast(data.message || (data.success ? 'Success' : 'Failed'), data.success ? 'success' : 'error');
+        } catch {
+          showToast('Request failed', 'error');
+        }
+      }
+
+     async function fetchServices() {
+       try {
         const res = await fetch('/api/services');
         const services = await res.json();
         renderServices(services);
-      } catch {
+       } catch {
         showToast('Failed to load services', 'error');
+       }
       }
-    }
 
     function renderServices(services) {
       const grid = document.getElementById('services-grid');
@@ -330,26 +354,26 @@
       grid.innerHTML = services.map(svc => {
         const status = ['running','stopped'].includes(svc.status) ? svc.status : 'unknown';
         return `
-          <div class="service-wrapper">
-            <div class="card" data-service="${svc.name}">
-              <div class="card-top">
-                <span class="card-name">${svc.name}</span>
-                <span class="status-badge status-${status}" id="status-${svc.name}">${svc.status}</span>
-              </div>
-              <div class="card-actions">
-                <button class="btn btn-primary btn-sm" onclick="action('start','${svc.name}')">Start</button>
-                <button class="btn btn-danger btn-sm" onclick="action('stop','${svc.name}')">Stop</button>
-                <button class="btn btn-sm btn-log ${logIntervals[svc.name] ? 'active' : ''}" onclick="toggleLog('${svc.name}')">Log</button>
-              </div>
-            </div>
-            <div class="log-panel" id="log-${svc.name}">
-              <div class="log-header">
-                <span>Container Logs</span>
-                <button class="btn-log-close" onclick="toggleLog('${svc.name}')">Close</button>
-              </div>
-              <pre class="log-content" id="log-content-${svc.name}">Loading...</pre>
-            </div>
-          </div>`;
+       <div class="service-wrapper">
+         <div class="card" data-service="${svc.name}">
+           <div class="card-top">
+             <span class="card-name">${svc.name}</span>
+             <span class="status-badge status-${status}" id="status-${svc.name}">${svc.status}</span>
+           </div>
+           <div class="card-actions">
+             <button class="btn btn-primary btn-sm" onclick="action('start','${svc.name}')">Start</button>
+             <button class="btn btn-danger btn-sm" onclick="action('stop','${svc.name}')">Stop</button>
+             <button class="btn btn-sm btn-log ${logIntervals[svc.name] ? 'active' : ''}" onclick="toggleLog('${svc.name}')">Log</button>
+           </div>
+         </div>
+         <div class="log-panel" id="log-${svc.name}">
+           <div class="log-header">
+             <span>Container Logs</span>
+             <button class="btn-log-close" onclick="toggleLog('${svc.name}')">Close</button>
+           </div>
+           <pre class="log-content" id="log-content-${svc.name}">Loading...</pre>
+         </div>
+       </div>`;
       }).join('');
     }
 
@@ -422,11 +446,11 @@
         const res = await fetch('/api/services');
         const services = await res.json();
         services.forEach(svc => {
-          const badge = document.getElementById(`status-${svc.name}`);
-          if (!badge) return;
-          const status = ['running','stopped'].includes(svc.status) ? svc.status : 'unknown';
-          badge.textContent = svc.status;
-          badge.className = `status-badge status-${status}`;
+       const badge = document.getElementById(`status-${svc.name}`);
+       if (!badge) return;
+       const status = ['running','stopped'].includes(svc.status) ? svc.status : 'unknown';
+       badge.textContent = svc.status;
+       badge.className = `status-badge status-${status}`;
         });
       } catch {
         /* silently ignore poll errors */

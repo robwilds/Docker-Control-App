@@ -1,0 +1,38 @@
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+
+# Flask instance files
+instance/
+*.db
+
+# Docker & compose
+*.log
+docker-socket.sock
+.docker/
+
+# Build artifacts (except angular source)
+node_modules/
+angular/dist/
+angular/build/
+.angular/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
