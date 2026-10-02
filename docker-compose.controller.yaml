@@ -1,0 +1,36 @@
+# The control app runs as its OWN compose project on purpose.
+#
+# If the controller lived inside docker-compose.yaml, its own "Stop All" /
+# "Restart All" buttons would kill the container serving those very buttons,
+# leaving no way back from the UI. Keeping it separate means the UI is never
+# managed by the project it manages.
+name: docker-control-app-controller
+
+services:
+  controller:
+    build:
+      context: dockercontrolapp
+    environment:
+      # The compose file this controller *manages*. Distinct from the file that
+      # defines this controller.
+      COMPOSE_FILE: ${REPO_DIR:?REPO_DIR must be set to the repo root}/docker-compose.yaml
+      # Pin the managed project name so the container and a host-side
+      # `docker compose` always target the same set of containers. Must match
+      # the project name the host would derive on its own.
+      COMPOSE_PROJECT_NAME: docker-control-app
+      # Enables container-aware behaviour in app.py (Docker Desktop cannot be
+      # launched from inside a Linux container).
+      IN_CONTAINER: "1"
+    volumes:
+      # Mounted at its IDENTICAL host path on purpose. The compose CLI resolves
+      # relative paths (`./angular`, `build.context`) client-side, then the
+      # daemon bind-mounts the resolved absolute path on the HOST. Mounting the
+      # repo at some other path (e.g. /project) would make the host try to bind
+      # /project/angular, which does not exist on the host.
+      - "${REPO_DIR}:${REPO_DIR}"
+      # Docker Desktop for macOS listens on ~/.docker/run/docker.sock, not
+      # /var/run/docker.sock. start.sh derives this from the active context.
+      - "${DOCKER_SOCK:-/var/run/docker.sock}:/var/run/docker.sock"
+    ports:
+      - "9500:9500"
+    restart: unless-stopped

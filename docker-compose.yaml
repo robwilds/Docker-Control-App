@@ -13,7 +13,11 @@ services:
     environment:
       - DOZZLE_MODE=swarm
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      # Docker Desktop for macOS listens on ~/.docker/run/docker.sock and does
+      # NOT create /var/run/docker.sock. Mounting that path silently yields an
+      # empty directory instead of a socket. start.sh exports DOCKER_SOCK from
+      # the active docker context; the default is correct on plain Linux.
+      - ${DOCKER_SOCK:-/var/run/docker.sock}:/var/run/docker.sock
     ports:
       - 8888:8080
     deploy:

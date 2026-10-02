@@ -23,6 +23,7 @@ instance/
 *.log
 docker-socket.sock
 .docker/
+.env
 
 # Build artifacts (except angular source)
 node_modules/
